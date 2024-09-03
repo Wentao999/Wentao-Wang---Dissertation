@@ -1,0 +1,62 @@
+import excel "path\to\data.xlsx", sheet("data") firstrow
+xtset id year
+logout, save (descriptive statistics) word replace:tabstat Pat Dig CFR CI COS ROA EAC TAC, s(N mean p50 sd min max) f(%12.3f)c(s)
+gen LDig=L.Dig
+logout, save (correlation analysis) word replace:pwcorr_a Pat Dig LDig CFR  CI COS ROA EAC TAC 
+reg Pat Dig CFR CI COS ROA EAC TAC, r
+vif
+logout,save(vif) word replace:vif
+reg Pat Dig CFR CI COS ROA , r
+est store ols
+xtreg Pat Dig CFR CI COS ROA , fe
+qui xtreg Pat Dig CFR CI COS ROA, re
+xttest0
+xtreg Pat Dig CFR CI COS ROA, re
+est store re
+xtreg Pat Dig CFR CI COS ROA, fe
+est store fe
+hausman fe re
+xtreg Pat Dig, fe
+est store fe1
+xtreg Pat Dig CFR CI COS ROA, fe
+est store fe2
+xtreg Pat L.Dig, fe
+est store fe3
+xtreg Pat L.Dig CFR CI COS ROA, fe
+est store fe4
+esttab fe1 fe2 fe3 fe4 using Benchmarkregression.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
+xtreg EAC Dig CFR CI COS ROA , fe
+est store fe5
+xtreg Pat Dig EAC CFR CI COS ROA , fe
+est store fe6
+esttab fe2 fe5 fe6 using EAC.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
+xtreg TAC Dig CFR CI COS ROA , fe
+est store fe7
+xtreg Pat Dig TAC CFR CI COS ROA, fe
+est store fe8
+esttab fe2 fe7 fe8 using TAC.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
+xtreg Pat2 Dig CFR CI COS ROA , fe
+est store fe9
+xtreg Pat x2 CFR CI COS ROA, re
+est store fe10
+reg Pat x2 CFR CI COS ROA , r
+est store fe11
+esttab fe9 fe10 fe11 using robustness.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
+xtreg Pat2 Dig EAC CFR CI COS ROA, fe
+est store fe12
+xtreg Pat2 Dig TAC CFR CI COS ROA, fe
+est store fe13
+esttab fe5 fe12 fe7 fe13 using robustness2.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
+import excel "path\to\heterogeneity\analysis\data.xlsx", sheet("Power Equipment 211") firstrow clear
+xtset id year
+xtreg Pat Dig CFR CI COS ROA, fe
+est store fe14
+import excel "path\to\heterogeneity\analysis\data.xlsx", sheet("Coal 25") firstrow clear
+xtset id year
+xtreg Pat Dig CFR CI COS ROA, fe
+est store fe15
+import excel "path\to\heterogeneity\analysis\data.xlsx", sheet("Petroleum and Petrochemical 33") firstrow clear
+xtset id year
+xtreg Pat Dig CFR CI COS ROA, fe
+est store fe16
+esttab fe14 fe15 fe16 using heterogeneityanalysis.rtf, replace b(%12.3f) t(%12.3f) nogap compress s(N r2 r2_a)star(* 0.1 ** 0.05 *** 0.01)
